@@ -21,12 +21,12 @@ graph TD
     end
 
     subgraph Backend_Container ["⚙️ Backend API (FastAPI + LangChain)"]
-        Agent[🤖 Agent Brain<br/>(Llama 3 via Groq)]
+        Agent[🤖 Agent Brain]
         Router{⚡ Decision Node}
         
         subgraph Tools ["🧰 Herramientas"]
-            Calc[🧮 Calculadora<br/>(Python Eval)]
-            Retriever[🔍 RAG Retriever<br/>(Semantic Search)]
+            Calc[🧮 Calculadora]
+            Retriever[🔍 RAG Retriever]
         end
     end
 
