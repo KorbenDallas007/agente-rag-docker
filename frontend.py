@@ -1,43 +1,31 @@
 import streamlit as st
 import requests
 import os
-from llm_real import RealLLM
 
-# --- CONFIGURACIÓN DE ARQUITECTO (Dynamic Environment) ---
-# Aquí ocurre la magia del desacoplamiento.
-# El código pregunta: "¿Hay una variable llamada API_URL?"
-# Si la respuesta es SÍ: Usa esa dirección (ej: http://ai-api:8000/embed)
-# Si la respuesta es NO: Usa localhost (para cuando pruebas en tu laptop sin Docker)
-API_URL = os.getenv("API_URL", "http://127.0.0.1:8080/embed")
-QDRANT_URL = os.getenv("QDRANT_URL", "http://127.0.0.1:6333")
-COLLECTION_NAME = "conocimiento_base"
+# --- CONFIGURACIÓN DE ARQUITECTO ---
+# Ahora apuntamos a la raíz de la API, porque usaremos distintos endpoints
+BASE_API_URL = os.getenv("API_URL", "http://127.0.0.1:8080")
 
-# Logs para ver qué está pasando (Debugging de Arquitecto)
-print(f"🔧 [System Start] Configurando Frontend contra: API={API_URL} | DB={QDRANT_URL}")
+# Ajuste de URL si viene con /embed (para compatibilidad con versiones previas)
+if "/embed" in BASE_API_URL:
+    BASE_API_URL = BASE_API_URL.replace("/embed", "")
 
-st.set_page_config(page_title="AI Architect Chat", page_icon="🧠")
-st.title("🧠 Asistente RAG con Llama 3")
-st.caption(f"Arquitectura: Streamlit -> {API_URL} -> {QDRANT_URL} -> GROQ")
+CHAT_ENDPOINT = f"{BASE_API_URL}/agent/chat"
 
-# --- SIDEBAR: CONFIGURACIÓN ---
+st.set_page_config(page_title="AI Architect Agent", page_icon="🕵️")
+
+st.title("🕵️ Agente Autónomo con Herramientas")
+st.caption(f"Arquitectura: Streamlit -> FastAPI (LangChain Agent) -> [Qdrant + Calculator]")
+
+# --- SIDEBAR ---
 with st.sidebar:
-    st.header("🔐 Configuración")
+    st.header("🔐 Llave de Acceso")
     api_key = st.text_input("Groq API Key", type="password", placeholder="gsk_...")
-    st.markdown("[Obtener Key Gratis](https://console.groq.com/keys)")
     
-    if not api_key:
-        st.warning("👈 Por favor ingresa tu API Key para activar el cerebro.")
+    st.divider()
+    st.info("Este agente puede:\n1. 🧮 Calcular matemáticas\n2. 🧠 Consultar su memoria (RAG)\n3. 💬 Charlar")
 
-# --- INICIALIZACIÓN DEL CEREBRO ---
-if "llm" not in st.session_state or st.session_state.get("api_key") != api_key:
-    if api_key:
-        st.session_state.llm = RealLLM(api_key)
-        st.session_state.api_key = api_key
-        st.success("Cerebro Llama-3 Activado 🚀")
-    else:
-        st.session_state.llm = None
-
-# Historial
+# --- HISTORIAL ---
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -45,54 +33,35 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# --- LÓGICA RAG ---
-def get_rag_response(user_query):
-    if not st.session_state.llm:
-        return "⚠️ Necesito la API Key para pensar."
+# --- LÓGICA DEL CLIENTE (Thin Client) ---
+if prompt := st.chat_input("Escribe tu orden (ej: 'Calcula 50*3' o '¿Qué es Docker?')..."):
+    
+    # 1. Validar Key
+    if not api_key:
+        st.warning("⚠️ Por favor ingresa tu API Key en la barra lateral.")
+        st.stop()
 
-    # 1. Retrieval
-    try:
-        # Usamos la variable API_URL dinámica
-        resp = requests.post(API_URL, json={"text": user_query})
-        if resp.status_code != 200:
-             return f"Error API: {resp.status_code}"
-        query_vector = resp.json()["vector"]
-    except Exception as e:
-        return f"Error conectando a API Embeddings ({API_URL}): {e}"
-
-    # 2. Search
-    try:
-        # Usamos la variable QDRANT_URL dinámica
-        search_url = f"{QDRANT_URL}/collections/{COLLECTION_NAME}/points/search"
-        payload = {"vector": query_vector, "limit": 1, "with_payload": True}
-        search_resp = requests.post(search_url, json=payload)
-        resultados = search_resp.json().get("result", [])
-    except Exception as e:
-        return f"Error conectando a Qdrant ({QDRANT_URL}): {e}"
-
-    # 3. Generation
-    context_text = ""
-    if resultados:
-        best_match = resultados[0]
-        context_text = best_match["payload"]["contenido"]
-        with st.expander("🕵️ Contexto Recuperado"):
-            st.info(f"{context_text}")
-    else:
-        with st.expander("🕵️ Contexto"):
-            st.warning("No encontré documentos relevantes.")
-
-    # Llamada al LLM Real
-    return st.session_state.llm.generate_response(user_query, context_text)
-
-# --- CHAT ---
-if prompt := st.chat_input("Pregunta algo..."):
+    # 2. Mostrar mensaje usuario
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
+    # 3. Llamar al Backend (El Agente)
     with st.chat_message("assistant"):
-        with st.spinner("Consultando arquitectura..."):
-            response = get_rag_response(prompt)
-            st.markdown(response)
-    
-    st.session_state.messages.append({"role": "assistant", "content": response})
+        with st.spinner("🤖 El Agente está pensando y seleccionando herramientas..."):
+            try:
+                # Enviamos la Query y la Key al Backend
+                payload = {"query": prompt, "api_key": api_key}
+                response = requests.post(CHAT_ENDPOINT, json=payload)
+                
+                if response.status_code == 200:
+                    agent_reply = response.json()["response"]
+                    st.markdown(agent_reply)
+                    
+                    # Guardar respuesta
+                    st.session_state.messages.append({"role": "assistant", "content": agent_reply})
+                else:
+                    st.error(f"Error del Servidor: {response.text}")
+            
+            except Exception as e:
+                st.error(f"Error de Conexión: {e}")

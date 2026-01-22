@@ -43,7 +43,7 @@ services:
     environment:
       # AQUÍ OCURRE LA MAGIA DEL DNS:
       # Ya no usamos 'localhost' ni IPs. Usamos los nombres de los servicios definidos arriba.
-      - API_URL=http://ai-api:8000/embed
+      - API_URL=http://ai-api:8000
       - QDRANT_URL=http://qdrant:6333
     depends_on:
       - ai-api

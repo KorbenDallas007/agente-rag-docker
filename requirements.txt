@@ -1,7 +1,10 @@
 fastapi
 uvicorn
-# Actualizamos a la versión 3+ que maneja mejor el Torch moderno
-sentence-transformers>=3.0.0
-# Dejamos que instale el Torch compatible con CPU
-torch --index-url https://download.pytorch.org/whl/cpu
+requests
 pydantic
+# El Golden Set de LangChain
+langchain==0.2.16
+langchain-community==0.2.16
+langchain-core==0.2.38
+langchain-groq==0.1.9
+qdrant-client
