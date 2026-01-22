@@ -23,9 +23,11 @@ El sistema sigue un diseño de microservicios desacoplados:
     *   *Vector Store:* Qdrant
     *   *Framework:* Requests (HTTP REST puro para máxima compatibilidad)
 
-## 🚀 Cómo ejecutarlo (Local o Nube)
+## 🚀 Cómo ejecutarlo (Quickstart)
 
-### Pre-requisitos
+Esta arquitectura utiliza **Docker Compose** para orquestar los microservicios y garantizar la persistencia de datos.
+
+### Requisitos
 *   Docker instalado.
 *   Una API Key de Groq (Gratuita).
 
@@ -37,33 +39,25 @@ El sistema sigue un diseño de microservicios desacoplados:
     cd agente-rag-docker
     ```
 
-2.  **Levantar la Infraestructura:**
+2.  **Desplegar la Arquitectura (Un solo comando):**
     ```bash
-    # Crear la red
-    docker network create ai-net
-    
-    # Base de Datos
-    docker run -d --name qdrant-db --network ai-net -p 6333:6333 qdrant/qdrant
-    
-    # API de Embeddings
-    docker build -t ai-lab-gcp .
-    docker run -d --name ai-api --network ai-net -p 8080:8000 ai-lab-gcp
+    docker compose up --build -d
     ```
+    *Esto levantará:*
+    *   🖥️ **Frontend:** http://localhost:8501
+    *   ⚙️ **API:** http://localhost:8080
+    *   🗄️ **Qdrant:** http://localhost:6333
 
 3.  **Ingestar Conocimiento (ETL):**
+    *Este script carga los datos iniciales en la base vectorial.*
     ```bash
-    # Crea un entorno virtual e instala dependencias
-    python3 -m venv venv && source venv/bin/activate
+    # (Opcional) Crea un entorno virtual si lo ejecutas localmente fuera de Docker
     pip install -r requirements.txt
-    
-    # Carga los datos en Qdrant
     python3 etl_pipeline.py
     ```
 
-4.  **Lanzar la Interfaz:**
-    ```bash
-    streamlit run frontend.py
-    ```
+4.  **Acceder:**
+    Abre tu navegador en `http://localhost:8501`.
 
 ## 📸 Demo
 
