@@ -1,0 +1,60 @@
+name: 🏗️ AI Architect CI/CD Pipeline
+
+# 1. EL GATILLO (Trigger)
+# Esto se activa cada vez que haces un PUSH a la rama 'main'
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+# 2. LAS TAREAS (Jobs)
+jobs:
+  build-and-test:
+    name: 🧪 Build & Test Docker Architecture
+    runs-on: ubuntu-latest # GitHub nos presta un servidor Linux GRATIS
+
+    steps:
+    # A. Descargar tu código del repo
+    - name: 📥 Checkout code
+      uses: actions/checkout@v3
+
+    # B. Configurar Docker
+    - name: 🐳 Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    # C. Instalar Docker Compose (versión moderna)
+    - name: 🔧 Install Docker Compose
+      run: |
+        sudo apt-get update
+        sudo apt-get install docker-compose-plugin
+        docker compose version
+
+    # D. LA PRUEBA DE FUEGO
+    # Construimos y levantamos todo. Si algo falla aquí, el pipeline se rompe (Rojo).
+    - name: 🔨 Build and Start Services
+      run: |
+        echo "🚀 Construyendo imágenes..."
+        docker compose build
+        
+        echo "🔥 Levantando infraestructura..."
+        docker compose up -d
+        
+        echo "🕵️ Verificando estado..."
+        docker compose ps
+        
+        echo "⏳ Esperando 10s para estabilización..."
+        sleep 10
+        
+        echo "✅ Verificando que los contenedores siguen vivos..."
+        if [ $(docker compose ps -q | wc -l) -lt 3 ]; then
+          echo "❌ ERROR: Algunos contenedores murieron."
+          docker compose logs
+          exit 1
+        else
+          echo "🎉 ÉXITO: Todos los sistemas operativos."
+        fi
+
+    # E. Limpieza
+    - name: 🧹 Teardown
+      run: docker compose down
