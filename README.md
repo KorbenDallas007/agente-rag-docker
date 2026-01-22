@@ -102,7 +102,8 @@ python3 etl_pipeline.py
 
 ## 📸 Demo
 
-*(Arrastra tu captura de pantalla aquí)*
+<img width="735" height="787" alt="image" src="https://github.com/user-attachments/assets/48e11dc4-8c96-41b9-a70e-a64db7c7a3f2" />
+
 
 ---
 *Desarrollado por [KorbenDallas007](https://github.com/KorbenDallas007) - AI Solutions Architect Portfolio.*
