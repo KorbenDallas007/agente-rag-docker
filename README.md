@@ -1,6 +1,7 @@
 # 🤖 Autonomous AI Agent: RAG + Tools & Reasoning
 
 > **Sistema Agéntico Autónomo capaz de razonar, seleccionar herramientas (Calculadora vs. Base Vectorial) y ejecutar tareas complejas. Orquestado con LangChain y desplegado en Microservicios Docker.**
+
 [![🏗️ AI Architect CI/CD Pipeline](https://github.com/KorbenDallas007/agente-rag-docker/actions/workflows/ci_cd.yml/badge.svg)](https://github.com/KorbenDallas007/agente-rag-docker/actions/workflows/ci_cd.yml)
 ![Python](https://img.shields.io/badge/Python-3.9+-blue?logo=python&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
