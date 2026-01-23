@@ -29,7 +29,7 @@ resource "google_compute_firewall" "allow_web" {
 resource "google_compute_instance" "ai_server" {
   name         = "ai-agent-server"
   machine_type = "e2-medium" # 2 vCPU, 4GB RAM (Equilibrado para IA)
-  
+
   boot_disk {
     initialize_params {
       image = "ubuntu-os-cloud/ubuntu-2204-lts"
