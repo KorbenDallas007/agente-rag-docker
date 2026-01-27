@@ -27,3 +27,12 @@ Este documento describe las decisiones de arquitectura tomadas para el proyecto 
 
 ## 6. Sustainability (Sostenibilidad)
 *   **Efficient Compute:** La arquitectura es compatible con procesadores ARM64 (AWS Graviton / OCI Ampere), que ofrecen mejor rendimiento por watt que la arquitectura x86 tradicional.
+
+### Site Reliability Engineering (SRE) Strategy - GCP Alignment
+Para entornos de producción en Google Cloud, se definen las siguientes métricas de éxito basadas en el framework de SRE:
+
+*   **SLI (Indicator):** Latencia de respuesta del endpoint `/agent/chat` y Tasa de Errores (HTTP 5xx).
+*   **SLO (Objective):**
+    *   *Latencia:* El 90% de las consultas deben completarse en < 3000ms (excluyendo el tiempo de generación del LLM externo).
+    *   *Disponibilidad:* 99.9% de uptime mensual (permitiendo ~43 min de caída/mes para mantenimiento).
+*   **Error Budget Policy:** Si la tasa de errores supera el SLO, se congela el despliegue de nuevas "Features" y el equipo se enfoca exclusivamente en estabilidad y deuda técnica.
