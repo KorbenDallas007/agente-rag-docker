@@ -93,6 +93,20 @@ Para entornos Enterprise de alta disponibilidad.
 ```bash
 kubectl apply -f k8s/
 ```
+## 🔮 Roadmap de Evolución (MLOps Strategy)
 
+Basado en el **AWS Machine Learning Lens**, las siguientes mejoras están planificadas para llevar la solución a un nivel productivo de gran escala:
+
+### 1. Observabilidad y Evaluación (LLMOps)
+*   **Integración con LangSmith/Arize Phoenix:** Para trazabilidad de cada paso del agente (Latencia, Tokens, Errores).
+*   **Pipeline de Evaluación Automática (Ragas):** Implementar un job en CI/CD que evalúe la calidad de las respuestas (Faithfulness, Answer Relevance) usando un "Golden Dataset" antes de aprobar un despliegue.
+
+### 2. Gestión del Dato (DataOps)
+*   **Automated Ingestion Pipeline:** Reemplazar el script ETL manual por un flujo disparado por eventos (ej. al subir un PDF a S3, una Lambda lo procesa y actualiza Qdrant automáticamente).
+*   **Data Versioning:** Versionado de colecciones en Qdrant para permitir "Rollbacks" del conocimiento si se introduce información errónea.
+
+### 3. Feedback Loop (Human-in-the-loop)
+*   **Mecanismo de Feedback:** Agregar botones de 👍/👎 en el Frontend.
+*   **Reinforcement Learning:** Utilizar el feedback negativo para filtrar documentos irrelevantes o ajustar los prompts del sistema dinámicamente.
 ---
 *Desarrollado por [KorbenDallas007](https://github.com/KorbenDallas007) - AI Solutions Architect Portfolio.*
